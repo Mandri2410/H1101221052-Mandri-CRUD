@@ -15,4 +15,24 @@ class Product extends Model
       'price',
       'stock',
   ];
+
+  public function brand()
+  {
+      return $this->belongsTo(Brand::class);
+  }
+
+  public function category()
+  {
+      return $this->belongsTo(Category::class);
+  }
+}
+
+class Category extends Model
+{
+    protected $fillable = ['name'];
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
-use App\Http\Requests\StoreProductRequest;
-use App\Http\Requests\UpdateProductRequest;
+use App\Http\Requests\StoreBrandRequest; 
+use App\Http\Requests\UpdateBrandRequest;
 use App\Models\Brand;
+use App\Models\Product;
 
 
 class BrandController extends Controller
@@ -15,10 +16,8 @@ class BrandController extends Controller
 
     public function index(): Response
     {
-      $products = Product::all();
-
-      return response(view('brand', ['brands' => $brands]));
-
+        $brands = Brand::all(); 
+        return response(view('brand', ['brands' => $brands])); 
     }
 
 
@@ -37,11 +36,10 @@ class BrandController extends Controller
     }
 
 
-    public function edit(string $id): Response
+    public function edit($id)
     {
-      $brand = Brand::findOrFail($id);
-
-      return response(view('brands.edit', ['brand' => $brand]));
+        $brand = Brand::findOrFail($id);
+        return view('brands.edit', compact('brand'));
     }
 
 
@@ -51,25 +49,34 @@ class BrandController extends Controller
     }
 
 
-  public function update(UpdateBrandRequest $request, string $id): RedirectResponse
+  public function update(Request $request, $id)
   {
-      $product = Product::findOrFail($id);
+      $request->validate([
+          'name' => 'required|string|max:255',
+      ]);
 
-      if ($product->update($request->validated())) {
-          return redirect(route('index'))->with('success', 'Updated!'); 
-      }
+      $brand = Brand::findOrFail($id);
+      $brand->update($request->all());
+
+      return redirect()->route('brands.index')->with('success', 'Brand updated successfully');
   }
 
 
-  public function destroy(string $id): RedirectResponse
+  public function destroy($id)
   {
-      $product = Product::findOrFail($id);
-
-      if ($product->delete()) {
-          return redirect(route('index'))->with('success', 'Deleted!');
+      $brand = Brand::findOrFail($id);
+      if ($brand->delete()) {
+          return redirect()->route('brands.index')->with('success', 'Brand deleted successfully');
+      } else {
+          return redirect()->route('brands.index')->with('error', 'Failed to delete brand');
       }
-
-      return redirect(route('index'))->with('error', 'Sorry, unable to delete this!');
   }
+
 
 }
+
+
+
+
+
+
